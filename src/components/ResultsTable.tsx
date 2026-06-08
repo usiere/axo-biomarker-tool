@@ -58,6 +58,40 @@ export default function ResultsTable({ results, onNewReport }: ResultsTableProps
     );
   };
 
+  const exportToCSV = () => {
+    const csvRows = [
+      // Header row
+      'Biomarker,Value,Unit,Reference Range,Classification,Patient Age,Patient Sex,Report File'
+    ];
+
+    // Data rows
+    results.biomarkers.forEach(biomarker => {
+      const row = [
+        biomarker.name,
+        biomarker.value,
+        biomarker.unit,
+        biomarker.reference_range,
+        biomarker.classification,
+        results.patient.age.toString(),
+        results.patient.sex,
+        results.fileName || 'unknown.pdf'
+      ].map(field => `"${field.replace(/"/g, '""')}"`).join(',');
+      csvRows.push(row);
+    });
+
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `biomarkers_${results.fileName?.replace('.pdf', '') || 'report'}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const counts = getClassificationCounts();
 
   // Extract filename from results
@@ -73,12 +107,20 @@ export default function ResultsTable({ results, onNewReport }: ResultsTableProps
           <span>Parsed in {processingTime}</span>
           <span>{results.biomarkers.length} markers</span>
         </div>
-        <button
-          className="border border-gray-800 text-gray-800 px-4 py-1.5 text-sm rounded hover:bg-gray-800 hover:text-white transition-colors"
-          onClick={onNewReport}
-        >
-          New report
-        </button>
+        <div className="flex items-center space-x-3">
+          <button
+            className="border border-gray-600 text-gray-600 px-4 py-1.5 text-sm rounded hover:bg-gray-600 hover:text-white transition-colors"
+            onClick={exportToCSV}
+          >
+            Export CSV
+          </button>
+          <button
+            className="border border-gray-800 text-gray-800 px-4 py-1.5 text-sm rounded hover:bg-gray-800 hover:text-white transition-colors"
+            onClick={onNewReport}
+          >
+            New report
+          </button>
+        </div>
       </div>
 
       {/* Summary strip */}
