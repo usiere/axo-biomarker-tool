@@ -1,6 +1,8 @@
 'use client';
 
 import { BiomarkerResult } from '@/types/biomarker';
+import { getBiomarkerTrend } from '@/lib/biomarker-history';
+import TrendChart from './TrendChart';
 
 interface ResultsTableProps {
   results: BiomarkerResult | null;
@@ -165,6 +167,9 @@ export default function ResultsTable({ results, onNewReport }: ResultsTableProps
                 Reference
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
+                Trend
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                 Status
               </th>
             </tr>
@@ -196,6 +201,18 @@ export default function ResultsTable({ results, onNewReport }: ResultsTableProps
                       classification={biomarker.classification}
                     />
                   </div>
+                </td>
+                <td className="px-4 py-4 text-left">
+                  {(() => {
+                    const trend = getBiomarkerTrend(biomarker.name);
+                    return trend ? (
+                      <TrendChart history={trend} width={120} height={60} />
+                    ) : (
+                      <div className="flex items-center justify-center w-30 h-15 text-xs text-muted">
+                        First reading
+                      </div>
+                    );
+                  })()}
                 </td>
                 <td className="px-4 py-4 text-left min-w-32">
                   {(() => {

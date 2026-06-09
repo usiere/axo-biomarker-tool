@@ -15,8 +15,21 @@ export interface BiomarkerResult {
   patient: Patient;
   biomarkers: Biomarker[];
   fileName: string;
+  timestamp?: number;
   _debug?: {
     rawResponse: string;
     cleanedResponse: string;
   };
+}
+
+export interface BiomarkerHistory {
+  biomarkerName: string;
+  entries: Array<{
+    value: number;
+    timestamp: number;
+    fileName: string;
+    classification: 'optimal' | 'normal' | 'out of range';
+    unit: string;
+    referenceRange: string;
+  }>;
 }

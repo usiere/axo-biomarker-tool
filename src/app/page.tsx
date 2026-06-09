@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import FileUpload from '@/components/FileUpload';
 import ResultsTable from '@/components/ResultsTable';
 import { BiomarkerResult } from '@/types/biomarker';
+import { saveBiomarkerResult } from '@/lib/biomarker-history';
 
 export default function Home() {
   const [results, setResults] = useState<BiomarkerResult | null>(null);
@@ -32,6 +33,9 @@ export default function Home() {
       }
 
       setResults(data);
+
+      // Save to history for trend tracking
+      saveBiomarkerResult(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
