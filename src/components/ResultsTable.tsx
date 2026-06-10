@@ -6,6 +6,8 @@ import { getBiomarkerTrend } from '@/lib/biomarker-history';
 import TrendChart from './TrendChart';
 import SearchAndFilter from './SearchAndFilter';
 import HighlightText from './HighlightText';
+import RiskDashboard from './RiskDashboard';
+import { analyzeHealthRisks } from '@/lib/risk-analysis';
 
 interface ResultsTableProps {
   results: BiomarkerResult | null;
@@ -53,11 +55,15 @@ function ReferenceRangeBar({ value, referenceRange, classification }: {
 export default function ResultsTable({ results, onNewReport }: ResultsTableProps) {
   const [filteredBiomarkers, setFilteredBiomarkers] = useState<Biomarker[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showRiskDashboard, setShowRiskDashboard] = useState(true);
 
   if (!results) return null;
 
   // Use filtered biomarkers if available, otherwise use all biomarkers
   const displayBiomarkers = filteredBiomarkers.length > 0 || searchTerm ? filteredBiomarkers : results.biomarkers;
+
+  // Generate risk assessment
+  const riskAssessment = analyzeHealthRisks(results.biomarkers, results.patient);
 
   const getClassificationCounts = () => {
     return results.biomarkers.reduce(
@@ -120,6 +126,16 @@ export default function ResultsTable({ results, onNewReport }: ResultsTableProps
         </div>
         <div className="flex items-center space-x-3">
           <button
+            className={`border px-4 py-1.5 text-sm rounded transition-colors ${
+              showRiskDashboard
+                ? 'border-blue-600 bg-blue-600 text-white hover:bg-blue-700'
+                : 'border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-white'
+            }`}
+            onClick={() => setShowRiskDashboard(!showRiskDashboard)}
+          >
+            Risk Analysis
+          </button>
+          <button
             className="border border-gray-600 text-gray-600 px-4 py-1.5 text-sm rounded hover:bg-gray-600 hover:text-white transition-colors"
             onClick={exportToCSV}
           >
@@ -166,6 +182,13 @@ export default function ResultsTable({ results, onNewReport }: ResultsTableProps
           setSearchTerm(searchTerm);
         }}
       />
+
+      {/* Risk Dashboard */}
+      {showRiskDashboard && (
+        <div className="mb-6">
+          <RiskDashboard assessment={riskAssessment} />
+        </div>
+      )}
 
       {/* Results table */}
       <div className="border border-border bg-white/50 backdrop-blur-sm overflow-hidden">
