@@ -1,8 +1,11 @@
 'use client';
 
-import { BiomarkerResult } from '@/types/biomarker';
+import { useState } from 'react';
+import { BiomarkerResult, Biomarker } from '@/types/biomarker';
 import { getBiomarkerTrend } from '@/lib/biomarker-history';
 import TrendChart from './TrendChart';
+import SearchAndFilter from './SearchAndFilter';
+import HighlightText from './HighlightText';
 
 interface ResultsTableProps {
   results: BiomarkerResult | null;
@@ -48,7 +51,13 @@ function ReferenceRangeBar({ value, referenceRange, classification }: {
 }
 
 export default function ResultsTable({ results, onNewReport }: ResultsTableProps) {
+  const [filteredBiomarkers, setFilteredBiomarkers] = useState<Biomarker[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+
   if (!results) return null;
+
+  // Use filtered biomarkers if available, otherwise use all biomarkers
+  const displayBiomarkers = filteredBiomarkers.length > 0 || searchTerm ? filteredBiomarkers : results.biomarkers;
 
   const getClassificationCounts = () => {
     return results.biomarkers.reduce(
@@ -149,6 +158,15 @@ export default function ResultsTable({ results, onNewReport }: ResultsTableProps
         </div>
       </div>
 
+      {/* Search and Filter */}
+      <SearchAndFilter
+        biomarkers={results.biomarkers}
+        onFilterChange={(filtered, searchTerm) => {
+          setFilteredBiomarkers(filtered);
+          setSearchTerm(searchTerm);
+        }}
+      />
+
       {/* Results table */}
       <div className="border border-border bg-white/50 backdrop-blur-sm overflow-hidden">
         <table className="min-w-full">
@@ -175,11 +193,15 @@ export default function ResultsTable({ results, onNewReport }: ResultsTableProps
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {results.biomarkers.map((biomarker, index) => (
+            {displayBiomarkers.map((biomarker, index) => (
               <tr key={index} className="hover:bg-hover transition-colors">
                 <td className="px-4 py-4 text-left">
                   <div className="flex items-center space-x-2 h-5">
-                    <span className="text-sm text-ink leading-tight">{biomarker.name}</span>
+                    <HighlightText
+                      text={biomarker.name}
+                      highlight={searchTerm}
+                      className="text-sm text-ink leading-tight"
+                    />
                     {biomarker.name.length > 20 && (
                       <span className="font-mono text-xs text-muted leading-tight">
                         {biomarker.name.match(/\(([^)]+)\)/)?.[1] || biomarker.name.slice(0, 3).toUpperCase()}
@@ -188,10 +210,22 @@ export default function ResultsTable({ results, onNewReport }: ResultsTableProps
                   </div>
                 </td>
                 <td className="px-4 py-4 text-right">
-                  <span className="font-mono text-sm text-ink leading-tight h-5 flex items-center justify-end">{biomarker.value}</span>
+                  <div className="h-5 flex items-center justify-end">
+                    <HighlightText
+                      text={biomarker.value}
+                      highlight={searchTerm}
+                      className="font-mono text-sm text-ink leading-tight"
+                    />
+                  </div>
                 </td>
                 <td className="px-4 py-4 text-left">
-                  <span className="font-mono text-xs text-muted leading-tight h-5 flex items-center">{biomarker.unit}</span>
+                  <div className="h-5 flex items-center">
+                    <HighlightText
+                      text={biomarker.unit}
+                      highlight={searchTerm}
+                      className="font-mono text-xs text-muted leading-tight"
+                    />
+                  </div>
                 </td>
                 <td className="px-4 py-4 text-left">
                   <div className="flex items-start">
@@ -237,9 +271,12 @@ export default function ResultsTable({ results, onNewReport }: ResultsTableProps
           </tbody>
         </table>
 
-        {results.biomarkers.length === 0 && (
+        {displayBiomarkers.length === 0 && (
           <div className="text-center py-12 text-muted">
-            No biomarkers found in the uploaded report.
+            {results.biomarkers.length === 0
+              ? "No biomarkers found in the uploaded report."
+              : "No biomarkers match the current filters."
+            }
           </div>
         )}
       </div>
