@@ -8,6 +8,7 @@ import SearchAndFilter from './SearchAndFilter';
 import HighlightText from './HighlightText';
 import RiskDashboard from './RiskDashboard';
 import ComparisonTool from './ComparisonTool';
+import GoalTracker from './GoalTracker';
 import { analyzeHealthRisks } from '@/lib/risk-analysis';
 import { downloadReport } from '@/lib/report-generator';
 
@@ -210,6 +211,11 @@ export default function ResultsTable({ results, onNewReport }: ResultsTableProps
       {/* Comparison Tool */}
       <div className="mb-6">
         <ComparisonTool />
+      </div>
+
+      {/* Goal Tracker */}
+      <div className="mb-6">
+        <GoalTracker />
       </div>
 
       {/* Results table */}
