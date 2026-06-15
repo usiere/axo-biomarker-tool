@@ -7,6 +7,7 @@ import TrendChart from './TrendChart';
 import SearchAndFilter from './SearchAndFilter';
 import HighlightText from './HighlightText';
 import RiskDashboard from './RiskDashboard';
+import ComparisonTool from './ComparisonTool';
 import { analyzeHealthRisks } from '@/lib/risk-analysis';
 
 interface ResultsTableProps {
@@ -189,6 +190,11 @@ export default function ResultsTable({ results, onNewReport }: ResultsTableProps
           <RiskDashboard assessment={riskAssessment} />
         </div>
       )}
+
+      {/* Comparison Tool */}
+      <div className="mb-6">
+        <ComparisonTool />
+      </div>
 
       {/* Results table */}
       <div className="border border-border bg-white/50 backdrop-blur-sm overflow-hidden">
