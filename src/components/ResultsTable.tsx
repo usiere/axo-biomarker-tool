@@ -9,6 +9,7 @@ import HighlightText from './HighlightText';
 import RiskDashboard from './RiskDashboard';
 import ComparisonTool from './ComparisonTool';
 import { analyzeHealthRisks } from '@/lib/risk-analysis';
+import { downloadReport } from '@/lib/report-generator';
 
 interface ResultsTableProps {
   results: BiomarkerResult | null;
@@ -76,6 +77,15 @@ export default function ResultsTable({ results, onNewReport }: ResultsTableProps
     );
   };
 
+  const generateHealthReport = () => {
+    const reportData = {
+      results,
+      riskAssessment,
+      generatedAt: new Date().toLocaleDateString()
+    };
+    downloadReport(reportData);
+  };
+
   const exportToCSV = () => {
     const csvRows = [
       // Header row
@@ -135,6 +145,12 @@ export default function ResultsTable({ results, onNewReport }: ResultsTableProps
             onClick={() => setShowRiskDashboard(!showRiskDashboard)}
           >
             Risk Analysis
+          </button>
+          <button
+            className="border border-purple-600 text-purple-600 px-4 py-1.5 text-sm rounded hover:bg-purple-600 hover:text-white transition-colors"
+            onClick={generateHealthReport}
+          >
+            Health Report
           </button>
           <button
             className="border border-gray-600 text-gray-600 px-4 py-1.5 text-sm rounded hover:bg-gray-600 hover:text-white transition-colors"
